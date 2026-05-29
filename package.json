@@ -1,0 +1,46 @@
+{
+  "name": "@h3mantd/laravel-cloud",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for Laravel Cloud.",
+  "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "docs",
+    "openapi/laravel-cloud.openapi.json"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "test:exports": "node scripts/smoke/esm.mjs && node scripts/smoke/cjs.cjs",
+    "openapi:fetch": "node scripts/fetch-openapi.mjs",
+    "openapi:types": "node scripts/generate-openapi-types.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/node": "^24.10.1",
+    "eslint": "^9.39.1",
+    "openapi-typescript": "^7.10.1",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.48.0",
+    "vitest": "^4.0.14"
+  }
+}
