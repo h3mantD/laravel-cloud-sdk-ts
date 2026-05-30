@@ -101,6 +101,23 @@ describe('HttpClient', () => {
     expect(headers.get('x-request')).toBe('request');
   });
 
+  it('rejects empty static tokens as configuration errors', () => {
+    expect(() => normalizeLaravelCloudClientConfig({ token: '   ' })).toThrow('token must be a non-empty string');
+  });
+
+  it('rejects empty async token provider results before fetch', async () => {
+    const fetch = vi.fn<FetchLike>();
+    const client = new HttpClient(
+      normalizeLaravelCloudClientConfig({
+        getToken: () => Promise.resolve(''),
+        fetch,
+      }),
+    );
+
+    await expect(client.request('GET', '/applications')).rejects.toThrow('token must be a non-empty string');
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it('sets JSON content type only for plain JSON request bodies', async () => {
     const { captured, fetch } = createFetch(fetchResponse(200, '{}', { 'content-type': 'application/json' }));
     const client = new HttpClient(normalizeLaravelCloudClientConfig({ token: 'test-token', fetch }));
@@ -244,6 +261,17 @@ describe('HttpClient', () => {
       status: 500,
       body: undefined,
       rawBody: '<html>token=[REDACTED] failed</html>',
+    } satisfies Partial<LaravelCloudHttpError>);
+  });
+
+  it('preserves status and raw body when JSON error responses are malformed', async () => {
+    const { fetch } = createFetch(fetchResponse(500, '{"message":', { 'content-type': 'application/json' }));
+    const client = new HttpClient(normalizeLaravelCloudClientConfig({ token: 'test-token', fetch }));
+
+    await expect(client.request('GET', '/applications')).rejects.toMatchObject({
+      status: 500,
+      body: undefined,
+      rawBody: '{"message":',
     } satisfies Partial<LaravelCloudHttpError>);
   });
 });

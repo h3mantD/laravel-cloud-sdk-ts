@@ -4,6 +4,10 @@ import type { DecodedResponseBody } from './types';
 export async function decodeResponse<TBody = unknown>(response: FetchLikeResponse): Promise<TBody | undefined> {
   const decoded = await decodeResponseBody(response);
 
+  if (decoded.parseError !== undefined) {
+    throw decoded.parseError;
+  }
+
   return decoded.body as TBody | undefined;
 }
 
@@ -19,7 +23,15 @@ export async function decodeResponseBody(response: FetchLikeResponse): Promise<D
   }
 
   if (shouldParseJson(response.headers, rawBody)) {
-    return { body: JSON.parse(rawBody) as unknown, rawBody };
+    try {
+      return { body: JSON.parse(rawBody) as unknown, rawBody };
+    } catch (error) {
+      if (error instanceof SyntaxError) {
+        return { body: undefined, parseError: error, rawBody };
+      }
+
+      throw error;
+    }
   }
 
   return { body: undefined, rawBody };

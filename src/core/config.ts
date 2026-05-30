@@ -47,7 +47,7 @@ export interface LaravelCloudClientOptions {
 }
 
 export interface NormalizedLaravelCloudClientAuthConfig {
-  readonly getToken: LaravelCloudTokenProvider;
+  readonly getToken: () => Promise<string>;
 }
 
 export interface NormalizedLaravelCloudClientConfig {
@@ -82,12 +82,24 @@ function normalizeAuthConfig(options: LaravelCloudClientOptions): NormalizedLara
   }
 
   if (options.getToken !== undefined) {
-    return { getToken: options.getToken };
+    const getToken = options.getToken;
+
+    return { getToken: async () => normalizeToken(await getToken()) };
   }
 
   if (options.token !== undefined) {
-    return { getToken: () => options.token ?? '' };
+    const token = normalizeToken(options.token);
+
+    return { getToken: () => Promise.resolve(token) };
   }
 
   throw new LaravelCloudConfigError('Laravel Cloud authentication requires a token or getToken provider');
+}
+
+function normalizeToken(token: unknown): string {
+  if (typeof token !== 'string' || token.trim().length === 0) {
+    throw new LaravelCloudConfigError('Laravel Cloud authentication token must be a non-empty string');
+  }
+
+  return token.trim();
 }

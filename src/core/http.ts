@@ -135,10 +135,10 @@ function prepareRequestBody(headers: Headers, body: HttpRequestOptions['body']):
     return JSON.stringify(body);
   }
 
-  return body;
+  return body as BodyInit;
 }
 
-function isPlainJsonBody(body: HttpRequestOptions['body']): body is QueryObject {
+function isPlainJsonBody(body: HttpRequestOptions['body']): body is object {
   return typeof body === 'object' && body !== null && body.constructor === Object;
 }
 

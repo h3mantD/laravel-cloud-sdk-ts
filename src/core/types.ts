@@ -9,7 +9,7 @@ export interface QueryObject {
 }
 
 export interface HttpRequestOptions {
-  readonly body?: BodyInit | QueryObject;
+  readonly body?: BodyInit | object;
   readonly headers?: HeadersInit;
   readonly query?: QueryObject;
   readonly signal?: AbortSignal;
@@ -18,5 +18,6 @@ export interface HttpRequestOptions {
 
 export interface DecodedResponseBody {
   readonly body: unknown;
+  readonly parseError?: SyntaxError;
   readonly rawBody: string;
 }
