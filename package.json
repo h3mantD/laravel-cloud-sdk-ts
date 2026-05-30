@@ -5,6 +5,10 @@
   "type": "module",
   "license": "MIT",
   "sideEffects": false,
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "engines": {
     "node": ">=18"
   },
@@ -29,9 +33,13 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm run release:check",
+    "release:check": "npm run openapi:check && npm run lint && npm run typecheck && npm test && npm run build && npm run test:exports && npm pack --dry-run",
     "test:exports": "node scripts/smoke/esm.mjs && node scripts/smoke/cjs.cjs",
     "openapi:fetch": "node scripts/fetch-openapi.mjs",
-    "openapi:types": "node scripts/generate-openapi-types.mjs"
+    "openapi:types": "node scripts/generate-openapi-types.mjs",
+    "openapi:check": "npm run openapi:types && git diff --exit-code -- src/generated/openapi.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
@@ -40,7 +48,8 @@
     "openapi-typescript": "^7.10.1",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.48.0",
-    "vitest": "^4.0.14"
+    "typescript-eslint": "8.48.0",
+    "vite": "6.4.2",
+    "vitest": "3.2.4"
   }
 }
