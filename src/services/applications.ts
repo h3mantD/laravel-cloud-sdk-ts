@@ -8,10 +8,9 @@ import type {
   ApplicationListResponse,
   ApplicationResponse,
   CreateApplicationData,
-  LaravelCloudConfirmOptions,
-  LaravelCloudUnconfirmedOptions,
   UpdateApplicationData,
 } from '../types/applications';
+import type { LaravelCloudConfirmOptions, LaravelCloudUnconfirmedOptions } from '../types/common';
 
 export type ServiceRequestOptions = Omit<HttpRequestOptions, 'body' | 'query'>;
 

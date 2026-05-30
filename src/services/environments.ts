@@ -1,7 +1,7 @@
 import { LaravelCloudConfirmationError } from '../core/errors';
 import type { HttpClient } from '../core/http';
 import type { ServiceRequestOptions } from './applications';
-import type { LaravelCloudConfirmOptions, LaravelCloudUnconfirmedOptions } from '../types/applications';
+import type { LaravelCloudConfirmOptions, LaravelCloudUnconfirmedOptions } from '../types/common';
 import type {
   AddEnvironmentVariablesData,
   CreateEnvironmentData,

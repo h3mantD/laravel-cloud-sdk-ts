@@ -11,12 +11,4 @@ export type UpdateApplicationData = components['schemas']['UpdateApplicationRequ
 export type ApplicationListResponse = operations['public.applications.index']['responses'][200]['content']['application/vnd.api+json'];
 export type ApplicationResponse = operations['public.applications.show']['responses'][200]['content']['application/vnd.api+json'];
 
-export interface LaravelCloudConfirmOptions {
-  readonly confirm: true;
-}
-
-export interface LaravelCloudUnconfirmedOptions {
-  readonly confirm?: false;
-}
-
 export type ApplicationAvatarUpload = Blob | File | FormData;
