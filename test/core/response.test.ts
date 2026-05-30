@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { decodeResponse, decodeResponseBody } from '../../src/index';
+import { decodeResponse, decodeResponseBody } from '../../src/core/response';
 
 function response(status: number, body: string, headers: HeadersInit = {}): Response {
   return new Response(status === 204 ? null : body, {

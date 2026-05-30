@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { redactSensitiveText, redactSensitiveValue } from '../../src/index';
+import { redactSensitiveText, redactSensitiveValue } from '../../src/core/redact';
 
 describe('secret redaction', () => {
   it('redacts token-like values', () => {

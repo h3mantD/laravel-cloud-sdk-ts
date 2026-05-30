@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { serializeQuery } from '../../src/index';
+import { serializeQuery } from '../../src/core/query';
 
 describe('serializeQuery', () => {
   it('serializes bracket filters and comma-separated include arrays', () => {

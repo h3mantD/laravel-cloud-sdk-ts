@@ -1,14 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import {
-  HttpClient,
   LaravelCloudHttpError,
   LaravelCloudTransportError,
   LaravelCloudValidationError,
   normalizeLaravelCloudClientConfig,
 } from '../../src/index';
-import type { FetchLike, FetchLikeResponse } from '../../src/index';
-import type { LaravelCloudRequestHook, LaravelCloudResponseHook } from '../../src/index';
+import { HttpClient } from '../../src/core/http';
+import type { FetchLike, FetchLikeResponse, LaravelCloudRequestHook, LaravelCloudResponseHook } from '../../src/core/config';
 
 interface CapturedRequest {
   readonly input: string | URL | Request;

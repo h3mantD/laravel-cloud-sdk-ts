@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { LaravelCloudClient, LaravelCloudConfirmationError, redactSensitiveText } from '../../src/index';
+import { LaravelCloudClient, LaravelCloudConfirmationError } from '../../src/index';
+import { redactSensitiveText } from '../../src/core/redact';
 import type { FetchLike, FetchLikeResponse } from '../../src/index';
 
 interface CapturedRequest {
