@@ -8,11 +8,37 @@ const rootDirectory = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const inputPath = resolve(rootDirectory, 'openapi/laravel-cloud.openapi.json');
 const outputPath = resolve(rootDirectory, 'src/generated/openapi.ts');
 const openapiTypescriptBin = resolve(rootDirectory, 'node_modules/.bin/openapi-typescript');
+const allowedMissingDiscriminatorMappings = new Set([
+  'components.schemas.DatabaseResource.properties.attributes.properties.config|laravel_mysql_84|#/components/schemas/LaravelMysqlConfig',
+  'components.schemas.DatabaseResource.properties.attributes.properties.config|laravel_mysql_8|#/components/schemas/LaravelMysqlConfig',
+  'components.schemas.DatabaseResource.properties.attributes.properties.config|aws_rds_mysql_8|#/components/schemas/AwsRdsConfig',
+  'components.schemas.DatabaseResource.properties.attributes.properties.config|aws_rds_postgres_18|#/components/schemas/AwsRdsConfig',
+  'components.schemas.DatabaseResource.properties.attributes.properties.config|neon_serverless_postgres_18|#/components/schemas/NeonServerlessConfig',
+  'components.schemas.DatabaseResource.properties.attributes.properties.config|neon_serverless_postgres_17|#/components/schemas/NeonServerlessConfig',
+  'components.schemas.DatabaseResource.properties.attributes.properties.config|neon_serverless_postgres_16|#/components/schemas/NeonServerlessConfig',
+  'components.schemas.StoreDatabaseRequest.properties.config|laravel_mysql_84|#/components/schemas/LaravelMysqlConfig',
+  'components.schemas.StoreDatabaseRequest.properties.config|laravel_mysql_8|#/components/schemas/LaravelMysqlConfig',
+  'components.schemas.StoreDatabaseRequest.properties.config|aws_rds_mysql_8|#/components/schemas/AwsRdsConfig',
+  'components.schemas.StoreDatabaseRequest.properties.config|aws_rds_postgres_18|#/components/schemas/AwsRdsConfig',
+  'components.schemas.StoreDatabaseRequest.properties.config|neon_serverless_postgres_18|#/components/schemas/NeonServerlessConfig',
+  'components.schemas.StoreDatabaseRequest.properties.config|neon_serverless_postgres_17|#/components/schemas/NeonServerlessConfig',
+  'components.schemas.StoreDatabaseRequest.properties.config|neon_serverless_postgres_16|#/components/schemas/NeonServerlessConfig',
+  'components.schemas.UpdateDatabaseRequest.properties.config|laravel_mysql_84|#/components/schemas/LaravelMysqlConfig',
+  'components.schemas.UpdateDatabaseRequest.properties.config|laravel_mysql_8|#/components/schemas/LaravelMysqlConfig',
+  'components.schemas.UpdateDatabaseRequest.properties.config|aws_rds_mysql_8|#/components/schemas/AwsRdsConfig',
+  'components.schemas.UpdateDatabaseRequest.properties.config|aws_rds_postgres_18|#/components/schemas/AwsRdsConfig',
+  'components.schemas.UpdateDatabaseRequest.properties.config|neon_serverless_postgres_18|#/components/schemas/NeonServerlessConfig',
+  'components.schemas.UpdateDatabaseRequest.properties.config|neon_serverless_postgres_17|#/components/schemas/NeonServerlessConfig',
+  'components.schemas.UpdateDatabaseRequest.properties.config|neon_serverless_postgres_16|#/components/schemas/NeonServerlessConfig',
+]);
 
 const schema = JSON.parse(await readFile(inputPath, 'utf8'));
 const schemaNames = new Set(Object.keys(schema.components?.schemas ?? {}));
 
-removeUnresolvableDiscriminatorMappings(schema, schemaNames);
+const removedMappings = [];
+
+removeUnresolvableDiscriminatorMappings(schema, schemaNames, [], removedMappings);
+assertOnlyAllowedMappingsWereRemoved(removedMappings);
 
 const temporaryDirectory = await mkdtemp(resolve(tmpdir(), 'laravel-cloud-openapi-'));
 const temporarySchemaPath = resolve(temporaryDirectory, 'laravel-cloud.openapi.json');
@@ -24,17 +50,20 @@ try {
   await rm(temporaryDirectory, { recursive: true, force: true });
 }
 
-function removeUnresolvableDiscriminatorMappings(value, schemaNames) {
+function removeUnresolvableDiscriminatorMappings(value, schemaNames, path, removedMappings) {
   if (!value || typeof value !== 'object') {
     return;
   }
 
   if ('discriminator' in value && typeof value.discriminator === 'object' && value.discriminator?.mapping) {
+    const location = path.join('.');
+
     for (const [key, reference] of Object.entries(value.discriminator.mapping)) {
       if (typeof reference === 'string' && reference.startsWith('#/components/schemas/')) {
         const schemaName = reference.slice('#/components/schemas/'.length);
 
         if (!schemaNames.has(schemaName)) {
+          removedMappings.push({ key, location, reference });
           delete value.discriminator.mapping[key];
         }
       }
@@ -45,9 +74,27 @@ function removeUnresolvableDiscriminatorMappings(value, schemaNames) {
     }
   }
 
-  for (const child of Object.values(value)) {
-    removeUnresolvableDiscriminatorMappings(child, schemaNames);
+  for (const [key, child] of Object.entries(value)) {
+    removeUnresolvableDiscriminatorMappings(child, schemaNames, [...path, key], removedMappings);
   }
+}
+
+function assertOnlyAllowedMappingsWereRemoved(removedMappings) {
+  const removed = new Set(removedMappings.map((mapping) => formatRemovedMapping(mapping)));
+  const unexpected = [...removed].filter((mapping) => !allowedMissingDiscriminatorMappings.has(mapping));
+  const missing = [...allowedMissingDiscriminatorMappings].filter((mapping) => !removed.has(mapping));
+
+  if (unexpected.length > 0 || missing.length > 0) {
+    throw new Error([
+      'Laravel Cloud OpenAPI discriminator override list is stale.',
+      unexpected.length > 0 ? `Unexpected missing mappings:\n${unexpected.join('\n')}` : '',
+      missing.length > 0 ? `Expected missing mappings no longer present:\n${missing.join('\n')}` : '',
+    ].filter(Boolean).join('\n\n'));
+  }
+}
+
+function formatRemovedMapping(mapping) {
+  return `${mapping.location}|${mapping.key}|${mapping.reference}`;
 }
 
 async function run(command, args) {
