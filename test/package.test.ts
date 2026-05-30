@@ -95,12 +95,13 @@ describe('package metadata', () => {
     const workflow = await readFile(ciWorkflowPath, 'utf8');
     const requiredCommands = [
       'npm ci',
-      'npm run openapi:types',
+      'npm run openapi:check',
       'npm run lint',
       'npm run typecheck',
       'npm test',
       'npm run build',
       'npm run test:exports',
+      'npm pack --dry-run',
     ];
 
     expect(workflow).toContain('push:');
