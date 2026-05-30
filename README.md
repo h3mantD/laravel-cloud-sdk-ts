@@ -1,6 +1,8 @@
 # Laravel Cloud SDK
 
-TypeScript SDK for the Laravel Cloud API. It exposes the current stable v1 resources with typed methods, raw API response envelopes, and no hidden live calls in tests or examples.
+TypeScript SDK for the Laravel Cloud API. It exposes the implemented stable v1 resources with typed methods, raw API response envelopes, and no hidden live calls in tests or examples.
+
+This `0.1.x` release intentionally covers a partial Laravel Cloud API surface: applications, environments, deployments, commands, instances and managed queues, object storage buckets, and bucket keys. See [API Coverage](#api-coverage) for future resources that are documented but not exposed as runtime client properties yet.
 
 ## Requirements
 
