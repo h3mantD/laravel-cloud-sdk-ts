@@ -177,6 +177,18 @@ const environment = await client.environments.create('app_123', {
 console.log(environment?.data.attributes?.created_at);
 ```
 
+Environment logs use the plain JSON log endpoint. The Laravel Cloud API requires a time window, so pass `from` and `to` ISO strings and reuse `meta.cursor` for the next page when present.
+
+```ts
+const logs = await client.environments.getLogs('env_123', {
+  from: '2026-01-01T00:00:00Z',
+  to: '2026-01-01T01:00:00Z',
+  type: 'application',
+});
+
+console.log(logs?.meta.cursor);
+```
+
 Deployments:
 
 ```ts

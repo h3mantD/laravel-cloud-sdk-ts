@@ -346,18 +346,6 @@ describe('EnvironmentsService', () => {
     expect(request.url).toBe('https://cloud.laravel.com/api/environments/env_123/metrics?period=24h');
   });
 
-  it('gets plain JSON environment logs without params or a query string', async () => {
-    const logs = { data: [], meta: { cursor: 'next' } };
-    const { captured, fetch } = createFetch(fetchResponse(200, JSON.stringify(logs), { 'content-type': 'application/json' }));
-    const client = createClient(fetch);
-
-    await expect(client.environments.getLogs('env_123')).resolves.toEqual(logs);
-
-    const request = requestFrom(captured[0]!);
-    expect(request.method).toBe('GET');
-    expect(request.url).toBe('https://cloud.laravel.com/api/environments/env_123/logs');
-  });
-
   it('gets plain JSON environment logs and preserves meta cursor unchanged', async () => {
     const logs = { data: [], meta: { cursor: 'next' } };
     const { captured, fetch } = createFetch(fetchResponse(200, JSON.stringify(logs), { 'content-type': 'application/json' }));

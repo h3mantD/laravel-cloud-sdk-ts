@@ -61,7 +61,7 @@ export class EnvironmentsService {
   update(environment: string, data: UpdateEnvironmentData, options: ServiceRequestOptions = {}): Promise<EnvironmentResponse | undefined> {
     return this.#http.patch<EnvironmentResponse>(environmentPath(environment), {
       ...options,
-      body: data as unknown as BodyInit,
+      body: data,
     });
   }
 
@@ -127,7 +127,7 @@ export class EnvironmentsService {
   ): Promise<EnvironmentResponse | undefined> {
     return this.#http.post<EnvironmentResponse>(`${environmentPath(environment)}/variables`, {
       ...options,
-      body: variables as unknown as BodyInit,
+      body: variables,
     });
   }
 
@@ -170,7 +170,7 @@ export class EnvironmentsService {
 
   getLogs(
     environment: string,
-    params?: EnvironmentLogsParams,
+    params: EnvironmentLogsParams,
     options: ServiceRequestOptions = {},
   ): Promise<EnvironmentLogsResponse | undefined> {
     return this.#http.get<EnvironmentLogsResponse>(`${environmentPath(environment)}/logs`, {
