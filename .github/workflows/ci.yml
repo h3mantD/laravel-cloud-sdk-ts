@@ -45,5 +45,11 @@ jobs:
       - name: Export smoke tests
         run: npm run test:exports
 
+      - name: Package checks
+        run: npm run package:check
+
+      - name: Packed package smoke tests
+        run: npm run test:package
+
       - name: Verify npm package contents
         run: npm pack --dry-run

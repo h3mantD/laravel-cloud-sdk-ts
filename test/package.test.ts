@@ -8,8 +8,10 @@ import { describe, expect, it } from 'vitest';
 const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const packageJsonPath = resolve(rootDir, 'package.json');
 const ciWorkflowPath = resolve(rootDir, '.github/workflows/ci.yml');
+const licensePath = resolve(rootDir, 'LICENSE');
 const esmSmokePath = resolve(rootDir, 'scripts/smoke/esm.mjs');
 const cjsSmokePath = resolve(rootDir, 'scripts/smoke/cjs.cjs');
+const packageSmokePath = resolve(rootDir, 'scripts/smoke/package.mjs');
 
 interface PackageMetadata {
   name?: unknown;
@@ -19,9 +21,14 @@ interface PackageMetadata {
   };
   exports?: {
     '.'?: {
-      types?: unknown;
-      import?: unknown;
-      require?: unknown;
+      import?: {
+        types?: unknown;
+        default?: unknown;
+      };
+      require?: {
+        types?: unknown;
+        default?: unknown;
+      };
     };
   };
   files?: unknown;
@@ -42,9 +49,14 @@ describe('package metadata', () => {
     expect(packageMetadata.sideEffects).toBe(false);
     expect(packageMetadata.engines?.node).toBe('>=18');
     expect(packageMetadata.exports?.['.']).toMatchObject({
-      types: './dist/index.d.ts',
-      import: './dist/index.js',
-      require: './dist/index.cjs',
+      import: {
+        types: './dist/index.d.ts',
+        default: './dist/index.js',
+      },
+      require: {
+        types: './dist/index.d.cts',
+        default: './dist/index.cjs',
+      },
     });
   });
 
@@ -79,11 +91,13 @@ describe('package metadata', () => {
     const workflow = await readFile(ciWorkflowPath, 'utf8');
     const esmSmoke = await readFile(esmSmokePath, 'utf8');
     const cjsSmoke = await readFile(cjsSmokePath, 'utf8');
+    const packageSmoke = await readFile(packageSmokePath, 'utf8');
     const checkedAutomation = [
       Object.values(packageMetadata.scripts ?? {}).join('\n'),
       workflow,
       esmSmoke,
       cjsSmoke,
+      packageSmoke,
     ].join('\n');
 
     expect(checkedAutomation).not.toMatch(/LARAVEL_CLOUD_(TOKEN|API_KEY|SECRET|CREDENTIAL)/u);
@@ -101,6 +115,8 @@ describe('package metadata', () => {
       'npm test',
       'npm run build',
       'npm run test:exports',
+      'npm run package:check',
+      'npm run test:package',
       'npm pack --dry-run',
     ];
 
@@ -115,5 +131,14 @@ describe('package metadata', () => {
 
     expect(commandPositions.every((position) => position >= 0)).toBe(true);
     expect(commandPositions).toEqual([...commandPositions].sort((left, right) => left - right));
+  });
+
+  it('ships with matching license metadata and text', async () => {
+    const packageMetadata = await readPackageMetadata();
+    const license = await readFile(licensePath, 'utf8');
+
+    expect(packageMetadata.name).toBe('@h3mantd/laravel-cloud');
+    expect(license).toContain('MIT License');
+    expect(license).toContain('Copyright (c) 2026 h3mantD');
   });
 });
