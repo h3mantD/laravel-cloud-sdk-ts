@@ -4,6 +4,20 @@
   "description": "TypeScript SDK for Laravel Cloud.",
   "type": "module",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/h3mantD/laravel-cloud-sdk-ts.git"
+  },
+  "bugs": {
+    "url": "https://github.com/h3mantD/laravel-cloud-sdk-ts/issues"
+  },
+  "homepage": "https://github.com/h3mantD/laravel-cloud-sdk-ts#readme",
+  "keywords": [
+    "laravel",
+    "laravel-cloud",
+    "sdk",
+    "typescript"
+  ],
   "sideEffects": false,
   "publishConfig": {
     "access": "public",
