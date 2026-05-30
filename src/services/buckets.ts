@@ -36,7 +36,7 @@ export class BucketsService {
   create(data: CreateBucketData, options: ServiceRequestOptions = {}): Promise<BucketResponse | undefined> {
     return this.#http.post<BucketResponse>('/buckets', {
       ...options,
-      body: data as unknown as BodyInit,
+      body: data,
     });
   }
 
@@ -50,7 +50,7 @@ export class BucketsService {
   update(filesystem: string, data: UpdateBucketData, options: ServiceRequestOptions = {}): Promise<BucketResponse | undefined> {
     return this.#http.patch<BucketResponse>(bucketPath(filesystem), {
       ...options,
-      body: data as unknown as BodyInit,
+      body: data,
     });
   }
 

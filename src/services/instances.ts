@@ -32,7 +32,7 @@ export class InstancesService {
   create(environment: string, data: CreateInstanceData, options: ServiceRequestOptions = {}): Promise<InstanceResponse | undefined> {
     return this.#http.post<InstanceResponse>(environmentInstancesPath(environment), {
       ...options,
-      body: data as unknown as BodyInit,
+      body: data,
     });
   }
 
@@ -46,7 +46,7 @@ export class InstancesService {
   update(instance: string, data: UpdateInstanceData, options: ServiceRequestOptions = {}): Promise<InstanceResponse | undefined> {
     return this.#http.patch<InstanceResponse>(instancePath(instance), {
       ...options,
-      body: data as unknown as BodyInit,
+      body: data,
     });
   }
 
